@@ -1,0 +1,66 @@
+exercice 8 : centre de formation 
+
+
+1. Lister pour chaque formation ses sessions ouvertes. Afficher le Titre de la
+formation, le nom de la session, la date de début et la date fin.
+
+SELECT f.titreForm, s.nomSess, s.dateDebut, s.dateFin
+FROM formation f
+INNER JOIN session s ON f.codeForm = s.codeForm;
+
+
+2. Lister Les étudiants inscrits dans chacune des formations. Ordonner la liste
+par titre de formation.
+
+SELECT f.titreForm, e.nomEtu, e.prenomEtu
+FROM formation f
+INNER JOIN inscription i ON f.codeForm = i.codeSess
+INNER JOIN etudiant e ON i.num_CINEtu = e.numCINEtu
+ORDER BY f.titreForm;
+
+
+3. Pour la formation web développement, calculer le nombre d’inscriptions
+distancielles et présentielles.
+
+SELECT 
+    SUM(CASE WHEN i.typeCours = 'Distancielle' THEN 1 ELSE 0 END) AS inscriptions_distancielles,
+    SUM(CASE WHEN i.typeCours = 'Présentielle' THEN 1 ELSE 0 END) AS inscriptions_presentielles
+FROM inscription i
+INNER JOIN session s ON i.codeSess = s.codeSess
+INNER JOIN formation f ON s.codeForm = f.codeForm
+WHERE f.titreForm = 'web développement';
+
+
+4. Lister les formations dont le nombre d’inscriptions distancielles est supérieur
+ou égale à 3. Ordonner la liste par le nombre d’inscription.
+
+SELECT f.titreForm, COUNT(*) AS nombre_inscriptions_distancielles
+FROM formation f
+JOIN session s ON f.codeForm = s.codeForm
+JOIN inscription i ON s.codeSess = i.codeSess
+WHERE i.typeCours = 'Distancielle'
+GROUP BY f.titreForm
+
+
+5. Lister pour chaque spécialité active, la liste des formations correspondantes :
+leurs titres, durée et prix. Ordonner la liste par l’ordre alphabétique
+descendant du nom de la spécialité.
+
+SELECT sp.nomSpec, f.titreForm, f.dureeFrom, f.prixForm
+FROM formation f
+INNER JOIN specialite sp ON f.codeForm = sp.codeSpec
+WHERE sp.active = 1
+ORDER BY sp.nomSpec DESC;
+
+
+6. Afficher l’union de la liste en N : 4 avec la liste des formations dont le nombre
+d’inscriptions présentielles est supérieur ou égal à 4.
+
+
+7. Calculer le total des prix payés par Année et mois de la date début des
+sessions
+
+SELECT YEAR(s.dateDebut) AS Annee, MONTH(s.dateDebut) AS Mois, SUM(f.prixForm) AS TotalPrix
+FROM session s
+INNER JOIN formation f ON s.codeForm = f.codeForm
+GROUP BY Annee, Mois;
